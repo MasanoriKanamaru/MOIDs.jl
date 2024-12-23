@@ -1,0 +1,13 @@
+name = "MOIDs"
+uuid = "7d596c53-7690-48f1-a3ba-390f07b416e8"
+authors = ["Masanori Kanamaru <kanamaru-masanori@hotmail.co.jp>"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1.11"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
