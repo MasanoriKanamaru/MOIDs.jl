@@ -1,5 +1,6 @@
 module MOIDs
 
-# Write your package code here.
+include("moid.jl")
+export moid
 
 end
