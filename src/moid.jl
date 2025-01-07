@@ -15,10 +15,6 @@ function moid(
     steptresh = 1e-5       # final step of first tuning in radians (to choose the MOID)
     stepmin   = 1e-14      # threshold step of second tuning in radians
 
-    # ---- constants ----
-    pi     = 3.141592653589793
-    twopi  = 2.0 * pi
-
     # ---- Convert angles from [deg] to [rad] ----
     ω₁  = deg2rad(ω₁)
     Ω₁  = deg2rad(Ω₁)
@@ -41,24 +37,24 @@ function moid(
     c33 = cos(I₁)
 
     # ---- Calculate new Euler angles for body B using the transition matrix (z1n,z2n,z3n etc.) ----
-    sintmpi = sin(I₂)
-    costmpi = cos(I₂)
-    costmpo = cos(Ω₂)
-    sintmpo = sin(Ω₂)
-    costmpa = cos(ω₂)
-    sintmpa = sin(ω₂)
+    sin_I = sin(I₂)
+    cos_I = cos(I₂)
+    sin_Ω = sin(Ω₂)
+    cos_Ω = cos(Ω₂)
+    sin_ω = sin(ω₂)
+    cos_ω = cos(ω₂)
+    
+    x1 = cos_Ω*cos_ω - sin_Ω*cos_I*sin_ω
+    x2 = sin_Ω*cos_ω + cos_Ω*cos_I*sin_ω
+    x3 = sin_I*sin_ω
 
-    x1 = costmpo*costmpa - sintmpo*costmpi*sintmpa
-    x2 = sintmpo*costmpa + costmpo*costmpi*sintmpa
-    x3 = sintmpi*sintmpa
+    y1 = -cos_Ω*sin_ω - sin_Ω*cos_I*cos_ω
+    y2 = -sin_Ω*sin_ω + cos_Ω*cos_I*cos_ω
+    y3 = sin_I*cos_ω
 
-    y1 = -costmpo*sintmpa - sintmpo*costmpi*costmpa
-    y2 = -sintmpo*sintmpa + costmpo*costmpi*costmpa
-    y3 = sintmpi*costmpa
-
-    z1 = sintmpi*sintmpo
-    z2 = -sintmpi*costmpo
-    z3 = costmpi
+    z1 = sin_I*sin_Ω
+    z2 = -sin_I*cos_Ω
+    z3 = cos_I
 
     z1n = c11*z1 + c12*z2 + c13*z3
     z2n = c21*z1 + c22*z2 + c23*z3
@@ -74,12 +70,12 @@ function moid(
     ω₂ = -atan(x3n, y3n)                        # was -atan2(x3n, y3n)
 
     # ---- Helpful precalculated values ----
-    costmpo = cos(Ω₂)
-    sintmpo = sin(Ω₂)
-    sintmpi = sin(I₂)
-    costmpi = z3n   # = cos(I₂) と同じ
-    sint    = sintmpo * costmpi
-    cost    = costmpo * costmpi
+    cos_Ω = cos(Ω₂)
+    sin_Ω = sin(Ω₂)
+    sin_I = sin(I₂)
+    cos_I = z3n   # = cos(I₂) と同じ
+    sint    = sin_Ω * cos_I
+    cost    = cos_Ω * cos_I
     radA    = a₁ * (1.0 - e₁^2)
     radB    = a₂ * (1.0 - e₂^2)
 
@@ -116,11 +112,11 @@ function moid(
         rB = radB / (1.0 + e₂ * cos(trueB))
         sintmp = sin(trueB + ω₂)
         costmp = cos(trueB + ω₂)
-        Bz_sq = sintmpi * sintmp
+        Bz_sq = sin_I * sintmp
         Bz_sq = Bz_sq * Bz_sq  # square of Z-coordinate for B
 
-        longit = atan(sintmpo*costmp + sintmp*cost,
-                      costmpo*costmp - sintmp*sint)
+        longit = atan(sin_Ω*costmp + sintmp*cost,
+                      cos_Ω*costmp - sintmp*sint)
 
         tmp2  = e₁ * cos(longit)
         rA   = radA / (1.0 + tmp2)
@@ -129,7 +125,7 @@ function moid(
 
         if abs(tmp1 - rA) > abs(tmp1 + rA2)
             rA = rA2
-            longit -= pi
+            longit -= π
             tmp1 = tmp1 + rA2
         else
             tmp1 = tmp1 - rA
@@ -150,17 +146,17 @@ function moid(
     # スキャン本体
     nmax = 0
     dist_min = dist_o
-    trueBstop = twopi + cstep
+    trueBstop = 2π + cstep
 
     while trueB < trueBstop
         rB = radB / (1.0 + e₂ * cos(trueB))
         sintmp = sin(trueB + ω₂)
         costmp = cos(trueB + ω₂)
-        Bz_sq = sintmpi*sintmp
+        Bz_sq = sin_I*sintmp
         Bz_sq = Bz_sq * Bz_sq
 
-        longit = atan(sintmpo*costmp + sintmp*cost,
-                      costmpo*costmp - sintmp*sint)
+        longit = atan(sin_Ω*costmp + sintmp*cost,
+                      cos_Ω*costmp - sintmp*sint)
 
         tmp2  = e₁ * cos(longit)
         rA   = radA / (1.0 + tmp2)
@@ -169,7 +165,7 @@ function moid(
 
         if abs(tmp1 - rA) > abs(tmp1 + rA2)
             rA = rA2
-            longit -= pi
+            longit -= π
             tmp1 = tmp1 + rA2
         else
             tmp1 = tmp1 - rA
@@ -204,8 +200,8 @@ function moid(
             tmptrueB[iii] = (0.25 + 0.5*iii)*pi
             sintmp = sin(tmptrueB[iii] + ω₂)
             costmp = cos(tmptrueB[iii] + ω₂)
-            tmplongit[iii] = atan(sintmpo*costmp + sintmp*cost,
-                                  costmpo*costmp - sintmp*sint)
+            tmplongit[iii] = atan(sin_Ω*costmp + sintmp*cost,
+                                  cos_Ω*costmp - sintmp*sint)
             tmpmoid[iii] = 1e6
         end
     end
@@ -251,9 +247,9 @@ function moid(
         rBt[2] = radB / (1.0 + e₂ * cos(trueB_m))
         sintmp = sin(trueB_m + ω₂)
         costmp = cos(trueB_m + ω₂)
-        Bxt[2] = costmpo*costmp - sintmp*sint
-        Byt[2] = sintmpo*costmp + sintmp*cost
-        Bzt[2] = sintmpi*sintmp
+        Bxt[2] = cos_Ω*costmp - sintmp*sint
+        Byt[2] = sin_Ω*costmp + sintmp*cost
+        Bzt[2] = sin_I*sintmp
 
         rAt[2] = radA / (1.0 + e₁ * cos(longit_m))
         Axt[2] = cos(longit_m)
@@ -281,9 +277,9 @@ function moid(
                 rBt[1] = radB / (1.0 + e₂ * cos(trueB_m - step))
                 sintmp = sin(trueB_m - step + ω₂)
                 costmp = cos(trueB_m - step + ω₂)
-                Bxt[1] = costmpo*costmp - sintmp*sint
-                Byt[1] = sintmpo*costmp + sintmp*cost
-                Bzt[1] = sintmpi*sintmp
+                Bxt[1] = cos_Ω*costmp - sintmp*sint
+                Byt[1] = sin_Ω*costmp + sintmp*cost
+                Bzt[1] = sin_I*sintmp
                 lpoints += 1
             end
 
@@ -292,9 +288,9 @@ function moid(
                 rBt[3] = radB / (1.0 + e₂ * cos(trueB_m + step))
                 sintmp = sin(trueB_m + step + ω₂)
                 costmp = cos(trueB_m + step + ω₂)
-                Bxt[3] = costmpo*costmp - sintmp*sint
-                Byt[3] = sintmpo*costmp + sintmp*cost
-                Bzt[3] = sintmpi*sintmp
+                Bxt[3] = cos_Ω*costmp - sintmp*sint
+                Byt[3] = sin_Ω*costmp + sintmp*cost
+                Bzt[3] = sin_I*sintmp
                 lpoints += 1
             end
 
