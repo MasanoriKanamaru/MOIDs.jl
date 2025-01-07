@@ -63,11 +63,9 @@ function moid(
     y3n = c31*y1 + c32*y2 + c33*y3
     x3n = c31*x1 + c32*x2 + c33*x3
 
-    # ---- Use atan(y, x) instead of atan2(y, x) ----
-    #  (atan2(y, x) 相当の2引数版関数は Julia では atan(y, x) )
-    I₂ = atan(sqrt(z1n*z1n + z2n*z2n), z3n)      # was atan2( ..., z3n )
-    Ω₂ = -atan(z1n, -z2n)                       # was -atan2(z1n, -z2n)
-    ω₂ = -atan(x3n, y3n)                        # was -atan2(x3n, y3n)
+    I₂ = atan(sqrt(z1n^2 + z2n^2), z3n)
+    Ω₂ = -atan(z1n, -z2n)
+    ω₂ = -atan(x3n, y3n)
 
     # ---- Helpful precalculated values ----
     cos_Ω = cos(Ω₂)
