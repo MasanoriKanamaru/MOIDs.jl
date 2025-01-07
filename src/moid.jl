@@ -72,10 +72,10 @@ function moid(
     sin_Ω = sin(Ω₂)
     sin_I = sin(I₂)
     cos_I = z3n   # = cos(I₂) と同じ
-    sint    = sin_Ω * cos_I
-    cost    = cos_Ω * cos_I
-    radA    = a₁ * (1.0 - e₁^2)
-    radB    = a₂ * (1.0 - e₂^2)
+    sint  = sin_Ω * cos_I
+    cost  = cos_Ω * cos_I
+    radA  = a₁ * (1 - e₁^2)
+    radB  = a₂ * (1 - e₂^2)
 
     # ---- Prepare arrays ----
     rAt       = zeros(3)
