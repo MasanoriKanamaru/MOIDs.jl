@@ -1,15 +1,15 @@
 """
     moid(
-        a₁, e₁, argpeA, omegaA, incliA,
-        a₂, e₂, argpeB, omegaB, incliB
+        a₁, e₁, ω₁, omegaA, incliA,
+        a₂, e₂, ω₂, omegaB, incliB
     ) -> Float64
 
 Calculate MOID (Minimum Orbit Intersection Distance) [AU] between two bodies
 whose orbital elements are given. Angles are assumed in [deg].
 """
 function moid(
-    a₁::Float64, e₁::Float64, argpeA::Float64, omegaA::Float64, incliA::Float64,
-    a₂::Float64, e₂::Float64, argpeB::Float64, omegaB::Float64, incliB::Float64
+    a₁::Float64, e₁::Float64, ω₁::Float64, omegaA::Float64, incliA::Float64,
+    a₂::Float64, e₂::Float64, ω₂::Float64, omegaB::Float64, incliB::Float64
 )::Float64
 
     # ---- parameters of the program ----
@@ -24,21 +24,21 @@ function moid(
     degrad = pi / 180.0
 
     # ---- Convert angles from [deg] to [rad] ----
-    argpeA  = argpeA  * degrad
+    ω₁  = ω₁  * degrad
     omegaA  = omegaA  * degrad
     incliA  = incliA  * degrad
-    argpeB  = argpeB  * degrad
+    ω₂  = ω₂  * degrad
     omegaB  = omegaB  * degrad
     incliB  = incliB  * degrad
 
     # ---- Transition matrix (c11...c33) for body A ----
-    c11 = cos(omegaA)*cos(argpeA) - sin(omegaA)*cos(incliA)*sin(argpeA)
-    c12 = sin(omegaA)*cos(argpeA) + cos(omegaA)*cos(incliA)*sin(argpeA)
-    c13 = sin(incliA)*sin(argpeA)
+    c11 = cos(omegaA)*cos(ω₁) - sin(omegaA)*cos(incliA)*sin(ω₁)
+    c12 = sin(omegaA)*cos(ω₁) + cos(omegaA)*cos(incliA)*sin(ω₁)
+    c13 = sin(incliA)*sin(ω₁)
 
-    c21 = -cos(omegaA)*sin(argpeA) - sin(omegaA)*cos(incliA)*cos(argpeA)
-    c22 = -sin(omegaA)*sin(argpeA) + cos(omegaA)*cos(incliA)*cos(argpeA)
-    c23 = sin(incliA)*cos(argpeA)
+    c21 = -cos(omegaA)*sin(ω₁) - sin(omegaA)*cos(incliA)*cos(ω₁)
+    c22 = -sin(omegaA)*sin(ω₁) + cos(omegaA)*cos(incliA)*cos(ω₁)
+    c23 = sin(incliA)*cos(ω₁)
 
     c31 = sin(incliA)*sin(omegaA)
     c32 = -sin(incliA)*cos(omegaA)
@@ -49,8 +49,8 @@ function moid(
     costmpi = cos(incliB)
     costmpo = cos(omegaB)
     sintmpo = sin(omegaB)
-    costmpa = cos(argpeB)
-    sintmpa = sin(argpeB)
+    costmpa = cos(ω₂)
+    sintmpa = sin(ω₂)
 
     x1 = costmpo*costmpa - sintmpo*costmpi*sintmpa
     x2 = sintmpo*costmpa + costmpo*costmpi*sintmpa
@@ -75,7 +75,7 @@ function moid(
     #  (atan2(y, x) 相当の2引数版関数は Julia では atan(y, x) )
     incliB = atan(sqrt(z1n*z1n + z2n*z2n), z3n)      # was atan2( ..., z3n )
     omegaB = -atan(z1n, -z2n)                       # was -atan2(z1n, -z2n)
-    argpeB = -atan(x3n, y3n)                        # was -atan2(x3n, y3n)
+    ω₂ = -atan(x3n, y3n)                        # was -atan2(x3n, y3n)
 
     # ---- Helpful precalculated values ----
     costmpo = cos(omegaB)
@@ -118,8 +118,8 @@ function moid(
     # まず初期3点を作るために2点計算する
     for iii in 1:2
         rB = radB / (1.0 + e₂ * cos(trueB))
-        sintmp = sin(trueB + argpeB)
-        costmp = cos(trueB + argpeB)
+        sintmp = sin(trueB + ω₂)
+        costmp = cos(trueB + ω₂)
         Bz_sq = sintmpi * sintmp
         Bz_sq = Bz_sq * Bz_sq  # square of Z-coordinate for B
 
@@ -158,8 +158,8 @@ function moid(
 
     while trueB < trueBstop
         rB = radB / (1.0 + e₂ * cos(trueB))
-        sintmp = sin(trueB + argpeB)
-        costmp = cos(trueB + argpeB)
+        sintmp = sin(trueB + ω₂)
+        costmp = cos(trueB + ω₂)
         Bz_sq = sintmpi*sintmp
         Bz_sq = Bz_sq * Bz_sq
 
@@ -206,8 +206,8 @@ function moid(
         nmax = 4
         for iii in 1:4
             tmptrueB[iii] = (0.25 + 0.5*iii)*pi
-            sintmp = sin(tmptrueB[iii] + argpeB)
-            costmp = cos(tmptrueB[iii] + argpeB)
+            sintmp = sin(tmptrueB[iii] + ω₂)
+            costmp = cos(tmptrueB[iii] + ω₂)
             tmplongit[iii] = atan(sintmpo*costmp + sintmp*cost,
                                   costmpo*costmp - sintmp*sint)
             tmpmoid[iii] = 1e6
@@ -253,8 +253,8 @@ function moid(
 
         # セットアップ
         rBt[2] = radB / (1.0 + e₂ * cos(trueB_m))
-        sintmp = sin(trueB_m + argpeB)
-        costmp = cos(trueB_m + argpeB)
+        sintmp = sin(trueB_m + ω₂)
+        costmp = cos(trueB_m + ω₂)
         Bxt[2] = costmpo*costmp - sintmp*sint
         Byt[2] = sintmpo*costmp + sintmp*cost
         Bzt[2] = sintmpi*sintmp
@@ -283,8 +283,8 @@ function moid(
             # bleft
             if bleft
                 rBt[1] = radB / (1.0 + e₂ * cos(trueB_m - step))
-                sintmp = sin(trueB_m - step + argpeB)
-                costmp = cos(trueB_m - step + argpeB)
+                sintmp = sin(trueB_m - step + ω₂)
+                costmp = cos(trueB_m - step + ω₂)
                 Bxt[1] = costmpo*costmp - sintmp*sint
                 Byt[1] = sintmpo*costmp + sintmp*cost
                 Bzt[1] = sintmpi*sintmp
@@ -294,8 +294,8 @@ function moid(
             # bright
             if bright
                 rBt[3] = radB / (1.0 + e₂ * cos(trueB_m + step))
-                sintmp = sin(trueB_m + step + argpeB)
-                costmp = cos(trueB_m + step + argpeB)
+                sintmp = sin(trueB_m + step + ω₂)
+                costmp = cos(trueB_m + step + ω₂)
                 Bxt[3] = costmpo*costmp - sintmp*sint
                 Byt[3] = sintmpo*costmp + sintmp*cost
                 Bzt[3] = sintmpi*sintmp
