@@ -1,15 +1,15 @@
 """
     moid(
-        saxisA, eccenA, argpeA, omegaA, incliA,
-        saxisB, eccenB, argpeB, omegaB, incliB
+        a₁, e₁, argpeA, omegaA, incliA,
+        a₂, e₂, argpeB, omegaB, incliB
     ) -> Float64
 
 Calculate MOID (Minimum Orbit Intersection Distance) [AU] between two bodies
 whose orbital elements are given. Angles are assumed in [deg].
 """
 function moid(
-    saxisA::Float64, eccenA::Float64, argpeA::Float64, omegaA::Float64, incliA::Float64,
-    saxisB::Float64, eccenB::Float64, argpeB::Float64, omegaB::Float64, incliB::Float64
+    a₁::Float64, e₁::Float64, argpeA::Float64, omegaA::Float64, incliA::Float64,
+    a₂::Float64, e₂::Float64, argpeB::Float64, omegaB::Float64, incliB::Float64
 )::Float64
 
     # ---- parameters of the program ----
@@ -84,8 +84,8 @@ function moid(
     costmpi = z3n   # = cos(incliB) と同じ
     sint    = sintmpo * costmpi
     cost    = costmpo * costmpi
-    radA    = saxisA * (1.0 - eccenA*eccenA)
-    radB    = saxisB * (1.0 - eccenB*eccenB)
+    radA    = a₁ * (1.0 - e₁^2)
+    radB    = a₂ * (1.0 - e₂^2)
 
     # ---- Prepare arrays ----
     rAt       = zeros(3)
@@ -117,7 +117,7 @@ function moid(
 
     # まず初期3点を作るために2点計算する
     for iii in 1:2
-        rB = radB / (1.0 + eccenB*cos(trueB))
+        rB = radB / (1.0 + e₂ * cos(trueB))
         sintmp = sin(trueB + argpeB)
         costmp = cos(trueB + argpeB)
         Bz_sq = sintmpi * sintmp
@@ -126,7 +126,7 @@ function moid(
         longit = atan(sintmpo*costmp + sintmp*cost,
                       costmpo*costmp - sintmp*sint)
 
-        tmp2  = eccenA*cos(longit)
+        tmp2  = e₁ * cos(longit)
         rA   = radA / (1.0 + tmp2)
         rA2  = radA / (1.0 - tmp2)
         tmp1 = rB*sqrt(1.0 - Bz_sq)
@@ -157,7 +157,7 @@ function moid(
     trueBstop = twopi + cstep
 
     while trueB < trueBstop
-        rB = radB / (1.0 + eccenB*cos(trueB))
+        rB = radB / (1.0 + e₂ * cos(trueB))
         sintmp = sin(trueB + argpeB)
         costmp = cos(trueB + argpeB)
         Bz_sq = sintmpi*sintmp
@@ -166,7 +166,7 @@ function moid(
         longit = atan(sintmpo*costmp + sintmp*cost,
                       costmpo*costmp - sintmp*sint)
 
-        tmp2  = eccenA*cos(longit)
+        tmp2  = e₁ * cos(longit)
         rA   = radA / (1.0 + tmp2)
         rA2  = radA / (1.0 - tmp2)
         tmp1 = rB*sqrt(1.0 - Bz_sq)
@@ -252,14 +252,14 @@ function moid(
         end
 
         # セットアップ
-        rBt[2] = radB / (1.0 + eccenB*cos(trueB_m))
+        rBt[2] = radB / (1.0 + e₂ * cos(trueB_m))
         sintmp = sin(trueB_m + argpeB)
         costmp = cos(trueB_m + argpeB)
         Bxt[2] = costmpo*costmp - sintmp*sint
         Byt[2] = sintmpo*costmp + sintmp*cost
         Bzt[2] = sintmpi*sintmp
 
-        rAt[2] = radA / (1.0 + eccenA*cos(longit_m))
+        rAt[2] = radA / (1.0 + e₁ * cos(longit_m))
         Axt[2] = cos(longit_m)
         Ayt[2] = sin(longit_m)
 
@@ -282,7 +282,7 @@ function moid(
 
             # bleft
             if bleft
-                rBt[1] = radB / (1.0 + eccenB*cos(trueB_m - step))
+                rBt[1] = radB / (1.0 + e₂ * cos(trueB_m - step))
                 sintmp = sin(trueB_m - step + argpeB)
                 costmp = cos(trueB_m - step + argpeB)
                 Bxt[1] = costmpo*costmp - sintmp*sint
@@ -293,7 +293,7 @@ function moid(
 
             # bright
             if bright
-                rBt[3] = radB / (1.0 + eccenB*cos(trueB_m + step))
+                rBt[3] = radB / (1.0 + e₂ * cos(trueB_m + step))
                 sintmp = sin(trueB_m + step + argpeB)
                 costmp = cos(trueB_m + step + argpeB)
                 Bxt[3] = costmpo*costmp - sintmp*sint
@@ -304,7 +304,7 @@ function moid(
 
             # aleft
             if aleft
-                rAt[1] = radA / (1.0 + eccenA*cos(longit_m - step))
+                rAt[1] = radA / (1.0 + e₁ * cos(longit_m - step))
                 Axt[1] = cos(longit_m - step)
                 Ayt[1] = sin(longit_m - step)
                 lpoints += 1
@@ -312,7 +312,7 @@ function moid(
 
             # aright
             if aright
-                rAt[3] = radA / (1.0 + eccenA*cos(longit_m + step))
+                rAt[3] = radA / (1.0 + e₁ * cos(longit_m + step))
                 Axt[3] = cos(longit_m + step)
                 Ayt[3] = sin(longit_m + step)
                 lpoints += 1
