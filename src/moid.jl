@@ -18,15 +18,14 @@ function moid(
     # ---- constants ----
     pi     = 3.141592653589793
     twopi  = 2.0 * pi
-    degrad = pi / 180.0
 
     # ---- Convert angles from [deg] to [rad] ----
-    ω₁  = ω₁  * degrad
-    Ω₁  = Ω₁  * degrad
-    I₁  = I₁  * degrad
-    ω₂  = ω₂  * degrad
-    Ω₂  = Ω₂  * degrad
-    I₂  = I₂  * degrad
+    ω₁  = deg2rad(ω₁)
+    Ω₁  = deg2rad(Ω₁)
+    I₁  = deg2rad(I₁)
+    ω₂  = deg2rad(ω₂)
+    Ω₂  = deg2rad(Ω₂)
+    I₂  = deg2rad(I₂)
 
     # ---- Transition matrix (c11...c33) for body A ----
     c11 = cos(Ω₁)*cos(ω₁) - sin(Ω₁)*cos(I₁)*sin(ω₁)
