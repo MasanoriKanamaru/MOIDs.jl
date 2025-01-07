@@ -27,7 +27,7 @@ using Test
     for i in eachindex(elements)
         tmp = moid(elements[1][2:6]..., elements[i][2:6]...)
         relative_error = abs(tmp - result[i]) / result[i]
-        println(rpad(elements[1][1], 14), rpad(elements[i][1], 14), rpad(result[i], 24), rpad(tmp, 24), rpad(relative_error, 24))
+        println(rpad(elements[1][1], 15), rpad(elements[i][1], 15), rpad(result[i], 24), rpad(tmp, 24), rpad(relative_error, 24))
         @test isapprox(tmp, result[i], atol=1e-5)
     end
     
