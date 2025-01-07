@@ -91,19 +91,13 @@ function moid(
 
     # ---- SCANNING PHASE ----
     # ここで使用する変数を事前に宣言・初期化しておく
-    trueB_o   = 0.0
-    longit_o  = 0.0
-    dist_oo   = 0.0
-    dist_o    = 1e6
+    trueB_o  = 0.0
+    longit_o = 0.0
+    dist_oo  = 0.0
+    dist_o   = 1e6
 
-    trueB     = -2.0 * cstep
-    moid      = 1e6
-
-    # 初期化
-    tmpmoid[1] = 1e6
-    tmpmoid[2] = 1e6
-    tmpmoid[3] = 1e6
-    tmpmoid[4] = 1e6
+    trueB    = -2.0 * cstep
+    moid     = 1e6
 
     # まず初期3点を作るために2点計算する
     for iii in 1:2
@@ -408,13 +402,5 @@ function moid(
         end
     end
 
-    # 最終的に tmpmoid の最小値をとって sqrt
-    bestsq = 1e6
-    for k in 1:length(tmpmoid)
-        if tmpmoid[k] < bestsq
-            bestsq = tmpmoid[k]
-        end
-    end
-
-    return sqrt(bestsq)
+    return sqrt(minimum(tmpmoid))  # Take the minimum value of `tmpmoid` and return its square root
 end
