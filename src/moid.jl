@@ -113,8 +113,7 @@ function moid(
         Bz_sq = sin_I * sintmp
         Bz_sq = Bz_sq * Bz_sq  # square of Z-coordinate for B
 
-        longit = atan(sin_Ω*costmp + sintmp*cost,
-                      cos_Ω*costmp - sintmp*sint)
+        longit = atan(sin_Ω*costmp + sintmp*cost, cos_Ω*costmp - sintmp*sint)
 
         tmp2  = e₁ * cos(longit)
         rA   = radA / (1.0 + tmp2)
@@ -153,8 +152,7 @@ function moid(
         Bz_sq = sin_I*sintmp
         Bz_sq = Bz_sq * Bz_sq
 
-        longit = atan(sin_Ω*costmp + sintmp*cost,
-                      cos_Ω*costmp - sintmp*sint)
+        longit = atan(sin_Ω*costmp + sintmp*cost, cos_Ω*costmp - sintmp*sint)
 
         tmp2  = e₁ * cos(longit)
         rA   = radA / (1.0 + tmp2)
@@ -198,8 +196,7 @@ function moid(
             tmptrueB[iii] = (0.25 + 0.5*iii)*pi
             sintmp = sin(tmptrueB[iii] + ω₂)
             costmp = cos(tmptrueB[iii] + ω₂)
-            tmplongit[iii] = atan(sin_Ω*costmp + sintmp*cost,
-                                  cos_Ω*costmp - sintmp*sint)
+            tmplongit[iii] = atan(sin_Ω*costmp + sintmp*cost, cos_Ω*costmp - sintmp*sint)
             tmpmoid[iii] = 1e6
         end
     end
