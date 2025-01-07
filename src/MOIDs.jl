@@ -3,4 +3,4 @@ module MOIDs
 include("moid.jl")
 export moid
 
-end
+end  # module MOIDs
