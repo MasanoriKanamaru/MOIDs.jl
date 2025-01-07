@@ -1,15 +1,12 @@
 """
-    moid(
-        a₁, e₁, ω₁, Ω₁, incliA,
-        a₂, e₂, ω₂, Ω₂, incliB
-    ) -> Float64
+    moid(a₁, e₁, ω₁, Ω₁, I₁, a₂, e₂, ω₂, Ω₂, I₂) -> Float64
 
 Calculate MOID (Minimum Orbit Intersection Distance) [AU] between two bodies
 whose orbital elements are given. Angles are assumed in [deg].
 """
 function moid(
-    a₁::Float64, e₁::Float64, ω₁::Float64, Ω₁::Float64, incliA::Float64,
-    a₂::Float64, e₂::Float64, ω₂::Float64, Ω₂::Float64, incliB::Float64
+    a₁::Float64, e₁::Float64, ω₁::Float64, Ω₁::Float64, I₁::Float64,
+    a₂::Float64, e₂::Float64, ω₂::Float64, Ω₂::Float64, I₂::Float64
 )::Float64
 
     # ---- parameters of the program ----
@@ -26,27 +23,27 @@ function moid(
     # ---- Convert angles from [deg] to [rad] ----
     ω₁  = ω₁  * degrad
     Ω₁  = Ω₁  * degrad
-    incliA  = incliA  * degrad
+    I₁  = I₁  * degrad
     ω₂  = ω₂  * degrad
     Ω₂  = Ω₂  * degrad
-    incliB  = incliB  * degrad
+    I₂  = I₂  * degrad
 
     # ---- Transition matrix (c11...c33) for body A ----
-    c11 = cos(Ω₁)*cos(ω₁) - sin(Ω₁)*cos(incliA)*sin(ω₁)
-    c12 = sin(Ω₁)*cos(ω₁) + cos(Ω₁)*cos(incliA)*sin(ω₁)
-    c13 = sin(incliA)*sin(ω₁)
+    c11 = cos(Ω₁)*cos(ω₁) - sin(Ω₁)*cos(I₁)*sin(ω₁)
+    c12 = sin(Ω₁)*cos(ω₁) + cos(Ω₁)*cos(I₁)*sin(ω₁)
+    c13 = sin(I₁)*sin(ω₁)
 
-    c21 = -cos(Ω₁)*sin(ω₁) - sin(Ω₁)*cos(incliA)*cos(ω₁)
-    c22 = -sin(Ω₁)*sin(ω₁) + cos(Ω₁)*cos(incliA)*cos(ω₁)
-    c23 = sin(incliA)*cos(ω₁)
+    c21 = -cos(Ω₁)*sin(ω₁) - sin(Ω₁)*cos(I₁)*cos(ω₁)
+    c22 = -sin(Ω₁)*sin(ω₁) + cos(Ω₁)*cos(I₁)*cos(ω₁)
+    c23 = sin(I₁)*cos(ω₁)
 
-    c31 = sin(incliA)*sin(Ω₁)
-    c32 = -sin(incliA)*cos(Ω₁)
-    c33 = cos(incliA)
+    c31 = sin(I₁)*sin(Ω₁)
+    c32 = -sin(I₁)*cos(Ω₁)
+    c33 = cos(I₁)
 
     # ---- Calculate new Euler angles for body B using the transition matrix (z1n,z2n,z3n etc.) ----
-    sintmpi = sin(incliB)
-    costmpi = cos(incliB)
+    sintmpi = sin(I₂)
+    costmpi = cos(I₂)
     costmpo = cos(Ω₂)
     sintmpo = sin(Ω₂)
     costmpa = cos(ω₂)
@@ -73,15 +70,15 @@ function moid(
 
     # ---- Use atan(y, x) instead of atan2(y, x) ----
     #  (atan2(y, x) 相当の2引数版関数は Julia では atan(y, x) )
-    incliB = atan(sqrt(z1n*z1n + z2n*z2n), z3n)      # was atan2( ..., z3n )
+    I₂ = atan(sqrt(z1n*z1n + z2n*z2n), z3n)      # was atan2( ..., z3n )
     Ω₂ = -atan(z1n, -z2n)                       # was -atan2(z1n, -z2n)
     ω₂ = -atan(x3n, y3n)                        # was -atan2(x3n, y3n)
 
     # ---- Helpful precalculated values ----
     costmpo = cos(Ω₂)
     sintmpo = sin(Ω₂)
-    sintmpi = sin(incliB)
-    costmpi = z3n   # = cos(incliB) と同じ
+    sintmpi = sin(I₂)
+    costmpi = z3n   # = cos(I₂) と同じ
     sint    = sintmpo * costmpi
     cost    = costmpo * costmpi
     radA    = a₁ * (1.0 - e₁^2)
